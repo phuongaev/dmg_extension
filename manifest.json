@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "DMG Extension",
+  "version": "1.0.0",
+  "description": "Tự động bắt và gửi Pancake token về webhook, hỗ trợ đa thiết bị",
+  "permissions": [
+    "webRequest",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "*://pancake.vn/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DMG Extension"
+  }
+}

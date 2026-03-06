@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>DMG Extension</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-0:     #0c0e14;
+      --bg-1:     #13161f;
+      --bg-2:     #1a1e2a;
+      --bg-3:     #222638;
+      --border:   #2a2f42;
+      --orange:   #f97316;
+      --orange-d: #c2570d;
+      --orange-g: linear-gradient(135deg, #f97316, #ea580c);
+      --blue:     #3b82f6;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --yellow:   #f59e0b;
+      --t1:       #f1f5f9;
+      --t2:       #94a3b8;
+      --t3:       #4b5675;
+      --mono:     'JetBrains Mono', monospace;
+      --sans:     'DM Sans', sans-serif;
+    }
+
+    body {
+      width: 360px;
+      background: var(--bg-0);
+      color: var(--t1);
+      font-family: var(--sans);
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    .header {
+      background: var(--bg-1);
+      border-bottom: 1px solid var(--border);
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--orange-g);
+    }
+    .header-logo {
+      width: 32px; height: 32px;
+      background: var(--orange-g);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(249,115,22,.3);
+    }
+    .header-info { flex: 1; }
+    .header-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+      letter-spacing: 0.2px;
+    }
+    .header-sub {
+      font-size: 10px;
+      color: var(--t3);
+      font-family: var(--mono);
+    }
+    .header-badge {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      color: var(--t3);
+      font-size: 10px;
+      font-family: var(--mono);
+      padding: 3px 7px;
+      border-radius: 20px;
+    }
+
+    /* ── Section wrapper ─────────────────────────────── */
+    .section {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--t3);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Device name input ───────────────────────────── */
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .input-wrap {
+      flex: 1;
+      position: relative;
+    }
+    .input-wrap .icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    input[type="text"] {
+      width: 100%;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px 9px 32px;
+      color: var(--t1);
+      font-family: var(--sans);
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input[type="text"]:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(249,115,22,.12);
+    }
+    input[type="text"]::placeholder { color: var(--t3); }
+
+    .btn-save {
+      background: var(--orange-g);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter .2s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn-save:hover  { filter: brightness(1.1); }
+    .btn-save:active { transform: scale(0.96); }
+
+    /* ── Status cards ────────────────────────────────── */
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: var(--bg-3); }
+    .card-label {
+      font-size: 10px;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 5px;
+    }
+    .card-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-full { grid-column: span 2; }
+
+    /* colours for token expiry */
+    .c-ok     { color: var(--green)  !important; }
+    .c-warn   { color: var(--yellow) !important; }
+    .c-dead   { color: var(--red)    !important; }
+    .c-muted  { color: var(--t3)     !important; }
+
+    /* ── Status badge ────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-ok     { background: rgba(34,197,94,.12);  color: var(--green);  border: 1px solid rgba(34,197,94,.2);  }
+    .badge-fail   { background: rgba(239,68,68,.12);  color: var(--red);    border: 1px solid rgba(239,68,68,.2);  }
+    .badge-idle   { background: rgba(75,86,117,.12);  color: var(--t3);     border: 1px solid rgba(75,86,117,.2);  }
+
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .dot-pulse {
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .3; }
+    }
+
+    /* ── Send button ─────────────────────────────────── */
+    .btn-send {
+      width: 100%;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: filter .2s, transform .1s;
+      box-shadow: 0 4px 14px rgba(37,99,235,.25);
+    }
+    .btn-send:hover    { filter: brightness(1.12); }
+    .btn-send:active   { transform: scale(0.98); }
+    .btn-send:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+    .btn-send .spin    { animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── History ─────────────────────────────────────── */
+    .history-list {
+      max-height: 148px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .history-list::-webkit-scrollbar { width: 4px; }
+    .history-list::-webkit-scrollbar-track { background: transparent; }
+    .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .history-item {
+      display: grid;
+      grid-template-columns: 90px 1fr 80px 18px;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-2);
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: 11px;
+    }
+    .history-item:hover { background: var(--bg-3); }
+    .h-time    { color: var(--t3); font-family: var(--mono); font-size: 10px; }
+    .h-account { color: var(--t2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .h-device  { color: var(--t3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
+    .h-status  { text-align: center; }
+
+    .empty-msg {
+      text-align: center;
+      color: var(--t3);
+      padding: 22px;
+      font-size: 12px;
+    }
+
+    /* ── Footer UUID ─────────────────────────────────── */
+    .footer {
+      background: var(--bg-1);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-label { color: var(--t3); font-size: 10px; }
+    .footer-uuid  { color: var(--t3); font-family: var(--mono); font-size: 10px; flex: 1; }
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--t3);
+      padding: 2px 7px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .copy-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+    /* ── Toast ───────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 14px; left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 7px 16px;
+      font-size: 12px;
+      color: var(--t1);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s, transform .25s;
+      white-space: nowrap;
+      z-index: 999;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ───────────────────────────────────── -->
+<div class="header">
+  <div class="header-logo">🥞</div>
+  <div class="header-info">
+    <div class="header-title">Pancake Token Watcher</div>
+    <div class="header-sub">pancake.vn / api/v1/me</div>
+  </div>
+  <span class="header-badge">v1.0</span>
+</div>
+
+<!-- ── Device Name ──────────────────────────────── -->
+<div class="section">
+  <div class="section-label">📛 Tên thiết bị</div>
+  <div class="input-row">
+    <div class="input-wrap">
+      <span class="icon">💻</span>
+      <input type="text" id="deviceName"
+             placeholder="VD: Laptop Văn Phòng, PC01..."
+             maxlength="50" />
+    </div>
+    <button class="btn-save" id="btnSave">Lưu</button>
+  </div>
+</div>
+
+<!-- ── Status ────────────────────────────────────── -->
+<div class="section">
+  <div class="section-label">📊 Trạng thái</div>
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">👤 Tài khoản</div>
+      <div class="card-value c-muted" id="accountName">Chưa phát hiện</div>
+    </div>
+    <div class="card">
+      <div class="card-label">🔑 Token</div>
+      <div class="card-value c-muted" id="tokenExp">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">📡 Gửi lần cuối</div>
+      <div class="card-value c-muted" id="lastSent">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">🔔 Kết quả</div>
+      <div class="card-value" id="lastStatus">
+        <span class="badge badge-idle"><span class="dot"></span>Chưa gửi</span>
+      </div>
+    </div>
+  </div>
+  <button class="btn-send" id="btnSend">
+    <span id="btnSendIcon">🔄</span>
+    <span id="btnSendText">Gửi lại ngay</span>
+  </button>
+</div>
+
+<!-- ── History ───────────────────────────────────── -->
+<div class="section">
+  <div class="section-label">📋 Lịch sử gần đây</div>
+  <div class="history-list" id="historyList">
+    <div class="empty-msg">Chưa có lịch sử — vào pancake.vn/account để bắt token</div>
+  </div>
+</div>
+
+<!-- ── Footer ────────────────────────────────────── -->
+<div class="footer">
+  <span class="footer-label">UUID:</span>
+  <span class="footer-uuid" id="deviceUUID">—</span>
+  <button class="copy-btn" id="btnCopyUUID" title="Copy UUID">Copy</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>
