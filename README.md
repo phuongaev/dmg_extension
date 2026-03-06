@@ -1,8 +1,8 @@
-# 🥞 Pancake Token Watcher — Chrome Extension
+# 🥞 DMG Extension — Chrome Extension
 
 ## Cấu trúc file
 ```
-pancake-token-watcher/
+dmg_extension/
 ├── manifest.json     ← Khai báo extension (MV3)
 ├── background.js     ← Service Worker: bắt token, gửi webhook
 ├── popup.html        ← Giao diện popup
