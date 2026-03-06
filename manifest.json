@@ -6,16 +6,37 @@
   "permissions": [
     "webRequest",
     "storage",
-    "alarms"
+    "alarms",
+    "scripting",
+    "tabs",
+    "notifications"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["attendance.js"],
+      "run_at": "document_idle"
+    }
   ],
   "host_permissions": [
-    "*://pancake.vn/*"
+    "*://pancake.vn/*",
+    "*://pos.pancake.vn/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
+  "icons": {
+    "16": "icons/logo.png",
+    "48": "icons/logo.png",
+    "128": "icons/logo.png"
+  },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "DMG Extension"
+    "default_title": "DMG Extension",
+    "default_icon": {
+      "16": "icons/logo.png",
+      "48": "icons/logo.png",
+      "128": "icons/logo.png"
+    }
   }
 }

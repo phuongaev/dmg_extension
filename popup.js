@@ -127,6 +127,66 @@ function renderHistory(history) {
 //  Load state (đọc thẳng từ storage — reliable)
 // ─────────────────────────────────────────────
 
+// ─────────────────────────────────────────────
+//  Admin Whitelist
+// ─────────────────────────────────────────────
+
+function renderWhitelist(list) {
+  const el = document.getElementById('whitelistItems');
+  if (!list.length) {
+    el.innerHTML = '<div class="wl-empty">Chưa có fb_id nào trong whitelist</div>';
+    return;
+  }
+  el.innerHTML = list.map(id => `
+    <div class="wl-item">
+      <span class="wl-id">${id}</span>
+      <button class="btn-wl-del" data-id="${id}" title="Xoá">✕</button>
+    </div>`).join('');
+
+  el.querySelectorAll('.btn-wl-del').forEach(btn => {
+    btn.addEventListener('click', () => removeFromWhitelist(btn.dataset.id));
+  });
+}
+
+function addToWhitelist(fbId) {
+  chrome.storage.local.get('pos_whitelist', ({ pos_whitelist = [] }) => {
+    if (pos_whitelist.includes(fbId)) {
+      showToast('⚠️ fb_id này đã có rồi!');
+      return;
+    }
+    pos_whitelist.push(fbId);
+    chrome.storage.local.set({ pos_whitelist }, () => {
+      showToast('✅ Đã thêm: ' + fbId);
+      renderWhitelist(pos_whitelist);
+    });
+  });
+}
+
+function removeFromWhitelist(fbId) {
+  chrome.storage.local.get('pos_whitelist', ({ pos_whitelist = [] }) => {
+    const updated = pos_whitelist.filter(id => id !== fbId);
+    chrome.storage.local.set({ pos_whitelist: updated }, () => {
+      showToast('🗑️ Đã xoá: ' + fbId);
+      renderWhitelist(updated);
+    });
+  });
+}
+
+document.getElementById('btnWlAdd').addEventListener('click', () => {
+  const val = document.getElementById('wlInput').value.trim();
+  if (!val) { showToast('⚠️ Nhập fb_id trước!'); return; }
+  addToWhitelist(val);
+  document.getElementById('wlInput').value = '';
+});
+
+document.getElementById('wlInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('btnWlAdd').click();
+});
+
+// ─────────────────────────────────────────────
+//  Load state (đọc thẳng từ storage — reliable)
+// ─────────────────────────────────────────────
+
 function loadState() {
   chrome.storage.local.get([
     'device_name',
@@ -138,11 +198,18 @@ function loadState() {
     'last_sent_time',
     'last_sent_status',
     'token_valid',
-    'history'
+    'history',
+    'is_admin',
+    'pos_whitelist'
   ], (state) => {
     // Fill device name input
     if (state.device_name) {
       document.getElementById('deviceName').value = state.device_name;
+    }
+    // Hiện Admin Panel nếu là admin
+    if (state.is_admin) {
+      document.getElementById('adminSection').style.display = 'block';
+      renderWhitelist(state.pos_whitelist || []);
     }
     renderStatus(state);
   });
