@@ -60,12 +60,17 @@ function generateUUID() {
   });
 }
 
-async function getDeviceUUID() {
-  const { device_uuid } = await chrome.storage.local.get('device_uuid');
-  if (device_uuid) return device_uuid;
-  const uuid = generateUUID();
-  await chrome.storage.local.set({ device_uuid: uuid });
-  return uuid;
+let _deviceUUIDPromise = null;
+
+function getDeviceUUID() {
+  if (!_deviceUUIDPromise) {
+    _deviceUUIDPromise = chrome.storage.local.get('device_uuid').then(({ device_uuid }) => {
+      if (device_uuid) return device_uuid;
+      const uuid = generateUUID();
+      return chrome.storage.local.set({ device_uuid: uuid }).then(() => uuid);
+    });
+  }
+  return _deviceUUIDPromise;
 }
 
 async function addHistory(account, device, success) {
@@ -168,8 +173,12 @@ async function processToken(token, config = {}) {
     current_fb_id         : jwt.fb_id || null
   });
 
-  const { last_token, last_sent_time, force_resend } =
-    await chrome.storage.local.get(['last_token', 'last_sent_time', 'force_resend']);
+  const { last_token, last_sent_time, force_resend, device_name } =
+    await chrome.storage.local.get(['last_token', 'last_sent_time', 'force_resend', 'device_name']);
+
+  // Lần đầu chưa đặt tên thiết bị → không tự động gửi (tránh tạo bản ghi "Unknown Device" thừa)
+  const isFirstSend = !last_sent_time;
+  if (isFirstSend && !device_name) return;
 
   const isNewToken  = token !== last_token;
   const isOver12h   = !last_sent_time || (Date.now() - last_sent_time) > SEND_INTERVAL_MS;
@@ -308,13 +317,19 @@ chrome.notifications.onButtonClicked.addListener(async (notifId, btnIdx) => {
 //  Listeners (đăng ký synchronous ở top-level)
 // ─────────────────────────────────────────────
 
-// Listener 1: pancake.vn — type: chat, automation: 1
+// Listener 1: pancake.vn — kiểm tra initiator để phân biệt chat vs POS
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     try {
       const url   = new URL(details.url);
       const token = url.searchParams.get('access_token');
-      if (token) processToken(token, { type: 'chat', is_admin: 0, automation: 1 });
+      if (!token) return;
+      let isPOS = false;
+      try { isPOS = !!details.initiator && new URL(details.initiator).hostname === 'pos.pancake.vn'; } catch {}
+      processToken(token, isPOS
+        ? { type: 'pos', is_admin: 0, automation: 0 }
+        : { type: 'chat', is_admin: 0, automation: 1 }
+      );
     } catch { /* ignore */ }
   },
   { urls: ['*://pancake.vn/api/*'] }

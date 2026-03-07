@@ -252,46 +252,56 @@ document.getElementById('btnSend').addEventListener('click', () => {
   const btnIcon = document.getElementById('btnSendIcon');
   const btnText = document.getElementById('btnSendText');
 
-  btn.disabled   = true;
-  btnIcon.className = 'spin';
+  btn.disabled        = true;
+  btnIcon.className   = 'spin';
   btnIcon.textContent = '⏳';
   btnText.textContent = 'Đang gửi...';
 
-  chrome.runtime.sendMessage({ action: 'force_send' }, (res) => {
-    // Khôi phục button
-    btn.disabled   = false;
-    btnIcon.className = '';
-    btnIcon.textContent = '🔄';
-    btnText.textContent = 'Gửi lại ngay';
+  const doSend = () => {
+    chrome.runtime.sendMessage({ action: 'force_send' }, (res) => {
+      // Khôi phục button
+      btn.disabled        = false;
+      btnIcon.className   = '';
+      btnIcon.textContent = '🔄';
+      btnText.textContent = 'Gửi lại ngay';
 
-    if (chrome.runtime.lastError) {
-      showToast('❌ Lỗi kết nối background!');
-      return;
-    }
+      if (chrome.runtime.lastError) {
+        showToast('❌ Lỗi kết nối background!');
+        return;
+      }
 
-    if (!res) {
-      showToast('❌ Không có phản hồi từ background');
-      return;
-    }
+      if (!res) {
+        showToast('❌ Không có phản hồi từ background');
+        return;
+      }
 
-    if (res.reason === 'no_token') {
-      showToast('⚠️ Chưa bắt được token — vào pancake.vn/account trước!');
-      return;
-    }
-    if (res.reason === 'invalid_token') {
-      showToast('❌ Token không hợp lệ!');
-      return;
-    }
+      if (res.reason === 'no_token') {
+        showToast('⚠️ Chưa bắt được token — vào pancake.vn/account trước!');
+        return;
+      }
+      if (res.reason === 'invalid_token') {
+        showToast('❌ Token không hợp lệ!');
+        return;
+      }
 
-    if (res.ok) {
-      showToast('✅ Gửi token thành công!');
-    } else {
-      showToast('❌ Webhook lỗi — kiểm tra lại URL!');
-    }
+      if (res.ok) {
+        showToast('✅ Gửi token thành công!');
+      } else {
+        showToast('❌ Webhook lỗi — kiểm tra lại URL!');
+      }
 
-    // Reload state sau khi gửi
-    loadState();
-  });
+      // Reload state sau khi gửi
+      loadState();
+    });
+  };
+
+  // Tự động lưu tên thiết bị từ input trước khi gửi
+  const nameInput = document.getElementById('deviceName').value.trim();
+  if (nameInput) {
+    chrome.storage.local.set({ device_name: nameInput }, doSend);
+  } else {
+    doSend();
+  }
 });
 
 // ─────────────────────────────────────────────
